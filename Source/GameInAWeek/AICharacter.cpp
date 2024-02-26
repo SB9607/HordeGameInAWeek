@@ -2,6 +2,8 @@
 
 
 #include "AICharacter.h"
+#include "Kismet/GameplayStatics.h"
+#include "PlayerCharacter.h"
 
 // Sets default values
 AAICharacter::AAICharacter()
@@ -16,6 +18,13 @@ void AAICharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	//Adding a delegate that will handle the on hit functionality
+	OnActorHit.AddDynamic(this, &AAICharacter::OnHit);
+
+	GameModeRef = Cast<AHoardGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
+
+	GameModeRef->remainingEnemies++;
+	GameModeRef->CheckRemainingEnemies();
 }
 
 // Called every frame
@@ -32,3 +41,73 @@ void AAICharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 
 }
 
+
+float AAICharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	CurrentHealth -= DamageAmount; //Decrease the health
+
+	//Checking to see if the AI died
+	if (CurrentHealth <= 0.0f)
+	{
+		GameModeRef->remainingEnemies--;
+		GameModeRef->CheckRemainingEnemies();
+		Destroy();
+
+		GameModeRef->IncreasePlayerEXPAndPoints(Exp, BasePoints);
+
+	}
+	return DamageAmount;
+}
+
+void AAICharacter::OnHit(AActor* SelfActor, AActor* OtherActor, FVector NormalImpulse, const FHitResult& Hit)
+{
+	//Making sure the owner is not null
+	if (SelfActor == nullptr || SelfActor == NULL)
+	{
+		return;
+	}
+	else
+	{
+		//Making sure the other actor that is hit is not null
+		if (OtherActor != nullptr || OtherActor != NULL)
+		{
+			if (bCanAttack)
+			{
+				//Checking if the actor hit is the explosive crate
+				if (OtherActor->GetClass()->IsChildOf(APlayerCharacter::StaticClass()))
+				{
+					bCanAttack = false;
+
+					//Applying damage to the crate when it is hit
+					UGameplayStatics::ApplyDamage(
+						OtherActor, //actor that will be damaged
+						BaseDamage, //the base damage to apply
+						GetController(), //controller that caused the damage
+						this, //Actor that actually caused the damage
+						UDamageType::StaticClass() //class that describes the damage that was done
+					);
+
+					GetWorld()->GetTimerManager().SetTimer(WaitTimer, this, &AAICharacter::SetCanAttackToTrue, 2.0f, false);
+				}
+			}
+		}
+	}
+}
+
+void AAICharacter::AttackPlayer(bool isLevelling)
+{
+	if (isLevelling)
+	{
+		bCanAttack = false;
+	}
+	else
+	{
+		bCanAttack = true;
+	}
+}
+
+void AAICharacter::SetCanAttackToTrue()
+{
+	bCanAttack = true;
+	GetWorld()->GetTimerManager().ClearTimer(WaitTimer);
+}
