@@ -4,6 +4,7 @@
 #include "AICharacter.h"
 #include "Kismet/GameplayStatics.h"
 #include "PlayerCharacter.h"
+#include <AIController.h>
 
 // Sets default values
 AAICharacter::AAICharacter()
@@ -31,7 +32,6 @@ void AAICharacter::BeginPlay()
 void AAICharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 
 // Called to bind functionality to input

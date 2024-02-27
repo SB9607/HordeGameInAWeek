@@ -32,4 +32,6 @@ private:
 
 	APawn* PlayerCharRef; //Referece to the player pawn
 
+	bool canEnemyAttack;
+
 };

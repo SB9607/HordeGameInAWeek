@@ -56,8 +56,6 @@ void AProjectile::OnHit(AActor* SelfActor, AActor* OtherActor, FVector NormalImp
 		//Making sure the other actor that is hit is not null
 		if (OtherActor != nullptr || OtherActor != NULL)
 		{
-
-			UE_LOG(LogTemp, Error, TEXT("Collided with %s"), *OtherActor->GetClass()->GetName());
 			//Checking if the actor hit is the explosive crate
 			if (OtherActor->GetClass()->IsChildOf(AAICharacter::StaticClass()))
 			{

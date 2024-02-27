@@ -15,6 +15,5 @@ void AEnemyAIController::BeginPlay()
 
 void AEnemyAIController::Tick(float DeltaTime)
 {
-	SetFocus(PlayerCharRef); //Look at the player
-	MoveToActor(PlayerCharRef, 30.0f); //Move towards the player
+
 }

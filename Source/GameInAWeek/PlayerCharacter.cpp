@@ -225,6 +225,7 @@ float APlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Damag
 	}
 	else
 	{
+		UE_LOG(LogTemp, Error, TEXT("Player hurt!"));
 		SetHealth(-DamageAmount, true);
 	}
 
