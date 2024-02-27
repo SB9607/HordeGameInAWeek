@@ -51,6 +51,10 @@ class GAMEINAWEEK_API APlayerCharacter : public ACharacter
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	class UInputAction* SprintAction;
 
+	/** Look Input Action */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	class UInputAction* AimAction;
+
 public:
 	// Sets default values for this character's properties
 	APlayerCharacter();
@@ -74,6 +78,10 @@ protected:
 	/** Called for sprinting */
 	void StartSprint(const FInputActionValue& Value);
 	void StopSprint(const FInputActionValue& Value);
+
+	/** Called for Aiming */
+	void StartAim(const FInputActionValue& Value);
+	void StopAim(const FInputActionValue& Value);
 
 public:	
 	// Called every frame
