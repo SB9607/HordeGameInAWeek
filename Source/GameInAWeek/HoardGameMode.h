@@ -8,6 +8,7 @@
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FRespawnEnemies);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FIncreasePlayerEXPAndPoints, float, Exp, float, Points);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FPlayerLevelling, bool, IsLevelling);
 
 /**
  * 
@@ -24,6 +25,15 @@ protected:
 
 public:
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "UI", meta = (BlueprintProtected = "true"))
+	TSubclassOf<class UUserWidget> PlayerHUDClass;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "UI", meta = (BlueprintProtected = "true"))
+	TSubclassOf<class UUserWidget> LevelUPHUDClass;
+
+	UPROPERTY()
+	class UUserWidget* CurrentWidget;
+
 	UPROPERTY()
 		int remainingEnemies;
 
@@ -33,15 +43,29 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "EventDispatchers")
 		FIncreasePlayerEXPAndPoints OnIncreasePlayerEXPAndPoints;
 
+		UPROPERTY(BlueprintAssignable, Category = "EventDispatchers")
+		FPlayerLevelling OnIsLevelling;
+
 	void CheckRemainingEnemies();
 
 	void IncreasePlayerEXPAndPoints(float EXP, float Points);
 
+	UFUNCTION(BlueprintCallable)
+	void IsPlayerLevelling(bool isPlayerLevelling);
+
+	UFUNCTION(BlueprintCallable)
+	void InitialisePlayerHUD();
+
+	UFUNCTION(BlueprintCallable)
+	void ShowLevelUpHUD();
+
 	UPROPERTY()
 		bool bIsLevelling = false;
 
+	UPROPERTY(BlueprintReadOnly)
+		int roundNumber = 0;
+
 private:
 
-	UPROPERTY()
-		int roundNumber = 0;
+	
 };

@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "InputActionValue.h"
+#include "HoardGameMode.h"
 #include "PlayerCharacter.generated.h"
 
 class USceneComponent;
@@ -83,6 +84,34 @@ protected:
 	void StartAim(const FInputActionValue& Value);
 	void StopAim(const FInputActionValue& Value);
 
+
+	UPROPERTY(EditAnywhere, Category = "UI")
+	float BaseHealth;
+
+	UPROPERTY(EditAnywhere, Category = "UI")
+	float NeededEXP = 100.0f;
+
+	UPROPERTY(EditAnywhere, Category = "UI")
+	float CurrentEXP = 0.0f;
+
+	UPROPERTY(EditAnywhere, Category = "UI")
+	int CurrentLevel = 1;
+
+	UPROPERTY(EditAnywhere, Category = "UI")
+	float CurrentStamina = 100.0f;
+
+	UPROPERTY(EditAnywhere, Category = "UI")
+	float Currency = 0.0f;
+
+	UPROPERTY(EditAnywhere, Category = "UI")
+	float GunDamage = 1.0f;
+
+	UPROPERTY()
+	FString Information = "";
+
+	UPROPERTY()
+	AHoardGameMode* GameModeRef; //Reference to the gamemode 
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -102,7 +131,7 @@ public:
 	TSubclassOf<AProjectile> ProjectileClass; //Projectile that is shot when the player shoots the gun
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Health")
-	float Health = 100.0f;
+	float Health;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Stamina")
 	float Stamina = 100.0f;
@@ -118,6 +147,60 @@ public:
 	void SetHealth(float health, bool isDamage);
 
 	void UpdateStamina(float valueToChange, bool isMoving);
+
+	UFUNCTION(BlueprintCallable)
+	float GetBaseHealth();
+
+	UFUNCTION(BlueprintCallable)
+	void IncreaseBaseHealth();
+
+	UFUNCTION(BlueprintCallable)
+	float GetCurrentHealth();
+
+	UFUNCTION(BlueprintCallable)
+	float GetNeededEXP();
+
+	UFUNCTION(BlueprintCallable)
+	void SetNeededEXP(float NeededEXPToLevel);
+
+	UFUNCTION(BlueprintCallable)
+	float GetCurrentEXP();
+
+	UFUNCTION(BlueprintCallable)
+	void SetCurrentEXP(float GainedEXP);
+
+	UFUNCTION(BlueprintCallable)
+	int GetCurrentLevel();
+
+	UFUNCTION(BlueprintCallable)
+	void SetCurrentLevel(int Level);
+
+	UFUNCTION(BlueprintCallable)
+	float GetCurrentCurrency();
+
+	UFUNCTION(BlueprintCallable)
+	void SetCurrentCurrency(float Points);
+
+	UFUNCTION(BlueprintCallable)
+	float GetGunDamage();
+
+	UFUNCTION(BlueprintCallable)
+	void SetGunDamage();
+
+	UFUNCTION(BlueprintCallable)
+	void SetInfo(FString info);
+
+	UFUNCTION()
+	void IncreaseEXPAndPoints(float Exp, float Points);
+
+	UFUNCTION()
+	void LevelUp();
+
+	UFUNCTION()
+	void ClearInfoText();
+
+	UFUNCTION(BlueprintCallable)
+	FString DisplayInfo();
 
 	UFUNCTION()
 	//Function that will be called when damage is applied

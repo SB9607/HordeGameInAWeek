@@ -72,6 +72,15 @@ void APlayerCharacter::BeginPlay()
 			Subsystem->AddMappingContext(DefaultMappingContext, 0);
 		}
 	}
+
+	BaseHealth = 100.0f;
+
+	GameModeRef = Cast<AHoardGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
+
+	GameModeRef->OnIncreasePlayerEXPAndPoints.AddDynamic(this, &APlayerCharacter::IncreaseEXPAndPoints);
+
+	Health = GetBaseHealth();
+	GameModeRef->InitialisePlayerHUD();
 }
 
 // Called every frame
@@ -116,6 +125,21 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 }
 
 
+float APlayerCharacter::GetBaseHealth()
+{
+	return BaseHealth;
+}
+
+void APlayerCharacter::IncreaseBaseHealth()
+{
+	BaseHealth += 10.0f;
+}
+
+float APlayerCharacter::GetCurrentHealth()
+{
+	return Health;
+}
+
 void APlayerCharacter::SetHealth(float health, bool isDamage)
 {
 	if (Health + health > Health)
@@ -126,6 +150,60 @@ void APlayerCharacter::SetHealth(float health, bool isDamage)
 	{
 		Health += health;
 	}
+}
+
+float APlayerCharacter::GetNeededEXP()
+{
+	return NeededEXP;
+}
+void APlayerCharacter::SetNeededEXP(float NeededEXPToLevel)
+{
+	NeededEXP = NeededEXPToLevel;
+}
+
+float APlayerCharacter::GetCurrentEXP()
+{
+	return CurrentEXP;
+}
+void APlayerCharacter::SetCurrentEXP(float GainedEXP)
+{
+	CurrentEXP += GainedEXP;
+
+	if (CurrentEXP >= NeededEXP)
+	{
+		LevelUp();
+		CurrentEXP = 0.0f;
+	}
+}
+
+int APlayerCharacter::GetCurrentLevel()
+{
+	return CurrentLevel;
+}
+void APlayerCharacter::SetCurrentLevel(int Level)
+{
+	CurrentLevel = Level;
+}
+float APlayerCharacter::GetCurrentCurrency()
+{
+	return Currency;
+}
+void APlayerCharacter::SetCurrentCurrency(float Points)
+{
+	Currency += Points;
+}
+float APlayerCharacter::GetGunDamage()
+{
+	return GunDamage;
+}
+void APlayerCharacter::SetGunDamage()
+{
+	GunDamage += 0.2f;
+}
+
+void APlayerCharacter::SetInfo(FString info)
+{
+	Information = info;
 }
 
 void APlayerCharacter::UpdateStamina(float valueToChange, bool isMoving)
@@ -258,4 +336,30 @@ void APlayerCharacter::StopAim(const FInputActionValue& Value)
 {
 	bUseControllerRotationYaw = false;
 	GetCharacterMovement()->bOrientRotationToMovement = true;
+}
+
+
+void APlayerCharacter::IncreaseEXPAndPoints(float EXP, float Points)
+{
+	SetCurrentEXP(EXP);
+	SetCurrentCurrency(Points);
+}
+
+void APlayerCharacter::LevelUp()
+{
+	GameModeRef->IsPlayerLevelling(true);
+	CurrentLevel++;
+	//Trigger level up logic from UI
+	UE_LOG(LogTemp, Warning, TEXT("You levelled up your level is now: %d"), CurrentLevel);
+	NeededEXP = NeededEXP * 1.5f;
+}
+
+void APlayerCharacter::ClearInfoText()
+{
+	SetInfo("");
+}
+
+FString APlayerCharacter::DisplayInfo()
+{
+	return FString(Information);
 }
