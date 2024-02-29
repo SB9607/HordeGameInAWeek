@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "InputActionValue.h"
 #include "HoardGameMode.h"
+#include "Kismet/GameplayStatics.h"
 #include "PlayerCharacter.generated.h"
 
 class USceneComponent;
@@ -56,6 +57,8 @@ class GAMEINAWEEK_API APlayerCharacter : public ACharacter
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	class UInputAction* AimAction;
 
+
+
 public:
 	// Sets default values for this character's properties
 	APlayerCharacter();
@@ -63,6 +66,8 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+	FTimerHandle ShootTimer; //Timer used so the AI will wait at after an attack
 
 	/** Called for movement input */
 	void Move(const FInputActionValue& Value);
@@ -72,6 +77,8 @@ protected:
 
 	/** Called for shooting input */
 	void Shoot(const FInputActionValue& Value);
+
+	void SpawnAndFireProjectile();
 
 	/** Called for interacting with objects */
 	void Interact(const FInputActionValue& Value);
@@ -105,6 +112,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "UI")
 	float GunDamage = 1.0f;
+
+	UPROPERTY(EditAnywhere, Category = "UI")
+	float FireRate = 3.0f;
 
 	UPROPERTY()
 	FString Information = "";
@@ -152,7 +162,7 @@ public:
 	float GetBaseHealth();
 
 	UFUNCTION(BlueprintCallable)
-	void IncreaseBaseHealth();
+	void IncreaseBaseHealth(float healthToIncreaseBy);
 
 	UFUNCTION(BlueprintCallable)
 	float GetCurrentHealth();
@@ -185,7 +195,13 @@ public:
 	float GetGunDamage();
 
 	UFUNCTION(BlueprintCallable)
-	void SetGunDamage();
+	void SetGunDamage(float DamageToIncreaseBy);
+
+	UFUNCTION(BlueprintCallable)
+	float GetFireRate();
+
+	UFUNCTION(BlueprintCallable)
+	void SetFireRate(float AmountToDecreaseBy);
 
 	UFUNCTION(BlueprintCallable)
 	void SetInfo(FString info);

@@ -81,6 +81,8 @@ void APlayerCharacter::BeginPlay()
 
 	Health = GetBaseHealth();
 	GameModeRef->InitialisePlayerHUD();
+
+	GetWorld()->GetTimerManager().SetTimer(ShootTimer, this, &APlayerCharacter::SpawnAndFireProjectile, FireRate, true);
 }
 
 // Called every frame
@@ -130,9 +132,9 @@ float APlayerCharacter::GetBaseHealth()
 	return BaseHealth;
 }
 
-void APlayerCharacter::IncreaseBaseHealth()
+void APlayerCharacter::IncreaseBaseHealth(float healthToIncreaseBy)
 {
-	BaseHealth += 10.0f;
+	BaseHealth += healthToIncreaseBy;
 }
 
 float APlayerCharacter::GetCurrentHealth()
@@ -180,27 +182,52 @@ int APlayerCharacter::GetCurrentLevel()
 {
 	return CurrentLevel;
 }
+
 void APlayerCharacter::SetCurrentLevel(int Level)
 {
 	CurrentLevel = Level;
 }
+
 float APlayerCharacter::GetCurrentCurrency()
 {
 	return Currency;
 }
+
 void APlayerCharacter::SetCurrentCurrency(float Points)
 {
 	Currency += Points;
 }
+
 float APlayerCharacter::GetGunDamage()
 {
 	return GunDamage;
 }
-void APlayerCharacter::SetGunDamage()
+
+void APlayerCharacter::SetGunDamage(float DamageToIncreaseBy)
 {
-	GunDamage += 0.2f;
+	GunDamage *= DamageToIncreaseBy;
 }
 
+float APlayerCharacter::GetFireRate()
+{
+	return FireRate;
+}
+
+void APlayerCharacter::SetFireRate(float AmountToDecreaseBy)
+{
+	GetWorld()->GetTimerManager().ClearTimer(ShootTimer);
+
+	if (FireRate - AmountToDecreaseBy <= 0)
+	{
+		FireRate = 0.1;
+	}
+	else 
+	{
+		FireRate -= AmountToDecreaseBy;
+	}
+
+	GetWorld()->GetTimerManager().SetTimer(ShootTimer, this, &APlayerCharacter::SpawnAndFireProjectile, FireRate, true);
+}
 void APlayerCharacter::SetInfo(FString info)
 {
 	Information = info;
@@ -266,28 +293,33 @@ void APlayerCharacter::Shoot(const FInputActionValue& Value)
 
 	if (isShooting)
 	{
-		//Check to see if the proijectile class is not null
-		if (ProjectileClass)
-		{
-			
-			FVector SpawnLocation = ProjectileSpawnLocation->GetComponentLocation();
-			FRotator SpawnRotation = FollowCamera->GetComponentRotation();
-			AProjectile* TempProjectile = GetWorld()->SpawnActor<AProjectile>(ProjectileClass, SpawnLocation, SpawnRotation); //Spawn a projectile at the location set
-
-			TempProjectile->SetOwner(this); //Setting the owner of the projectile
-
-			//Playing the gunshot sound
-			//UGameplayStatics::PlaySoundAtLocation(GetWorld(), GunshotSound, GetActorLocation(), 1.0f, 1.0f, 0.0f);
-
-			//TempProjectile->Damage *= GetGunDamage();
-		}
-		else
-		{
-
-			UE_LOG(LogTemp, Error, TEXT("No Projectile class set in the blueprint"));
-		}
+		SpawnAndFireProjectile();
 	}
 
+}
+
+void APlayerCharacter::SpawnAndFireProjectile()
+{
+	//Check to see if the proijectile class is not null
+	if (ProjectileClass)
+	{
+
+		FVector SpawnLocation = ProjectileSpawnLocation->GetComponentLocation();
+		FRotator SpawnRotation = FollowCamera->GetComponentRotation();
+		AProjectile* TempProjectile = GetWorld()->SpawnActor<AProjectile>(ProjectileClass, SpawnLocation, SpawnRotation); //Spawn a projectile at the location set
+
+		TempProjectile->SetOwner(this); //Setting the owner of the projectile
+
+		//Playing the gunshot sound
+		//UGameplayStatics::PlaySoundAtLocation(GetWorld(), GunshotSound, GetActorLocation(), 1.0f, 1.0f, 0.0f);
+
+		//TempProjectile->Damage *= GetGunDamage();
+	}
+	else
+	{
+
+		UE_LOG(LogTemp, Error, TEXT("No Projectile class set in the blueprint"));
+	}
 }
 
 void APlayerCharacter::Interact(const FInputActionValue& Value)

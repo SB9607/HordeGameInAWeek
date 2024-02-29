@@ -29,7 +29,7 @@ void AHoardGameMode::IsPlayerLevelling(bool isPlayerLevelling)
 	if (isPlayerLevelling)
 	{
 
-		//ShowLevelUpHUD();
+		ShowLevelUpHUD();
 	}
 	else
 	{
