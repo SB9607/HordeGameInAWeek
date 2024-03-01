@@ -7,6 +7,9 @@
 void AHoardGameMode::BeginPlay()
 {
 	Super::BeginPlay();
+
+	//Setting the timer that will count down and for the player to win the game
+	GetWorld()->GetTimerManager().SetTimer(WinGameTimer, this, &AHoardGameMode::WinGame, GameDuration, false);
 }
 
 void AHoardGameMode::CheckRemainingEnemies()
@@ -93,4 +96,21 @@ void AHoardGameMode::ShowLevelUpHUD()
 			CurrentWidget->AddToViewport();
 		}
 	}
+}
+
+void AHoardGameMode::WinGame()
+{
+	GetWorld()->GetTimerManager().ClearTimer(WinGameTimer);
+
+	//Display the Win UI
+	UGameplayStatics::OpenLevel(GetWorld(), TEXT("WinScreen"));
+}
+
+void AHoardGameMode::LoseGame()
+{
+
+	GetWorld()->GetTimerManager().ClearTimer(WinGameTimer);
+
+	//Display the Win UI
+	UGameplayStatics::OpenLevel(GetWorld(), TEXT("LoseScreen"));
 }

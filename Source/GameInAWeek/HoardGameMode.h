@@ -59,6 +59,23 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void ShowLevelUpHUD();
 
+	/// <summary>
+	/// Win game function that is called when the player hits the win condition of surviving the duration and takes the player to the win screen
+	/// </summary>
+	UFUNCTION()
+	void WinGame();
+
+	/// <summary>
+	/// Lose game function that is called when the player runs out of health and will be sent to a lose screen
+	/// </summary>
+	UFUNCTION()
+	void LoseGame();
+
+	FTimerHandle WinGameTimer; //Timer that will be set to the game duration. When the timer runs out the player will win the game
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	float GameDuration = 300.0f; //Duration of the game set to 5 minutes that will count down using the timer
+
 	UPROPERTY()
 		bool bIsLevelling = false;
 

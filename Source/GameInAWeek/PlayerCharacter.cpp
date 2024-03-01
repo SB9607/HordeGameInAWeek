@@ -80,7 +80,12 @@ void APlayerCharacter::BeginPlay()
 	GameModeRef->OnIncreasePlayerEXPAndPoints.AddDynamic(this, &APlayerCharacter::IncreaseEXPAndPoints);
 
 	Health = GetBaseHealth();
+
+	TimeRemaining = GameModeRef->GameDuration;
+
 	GameModeRef->InitialisePlayerHUD();
+
+	GetWorld()->GetTimerManager().SetTimer(TimeTillExtractTimer, this, &APlayerCharacter::UpdateTimeRemaining, 1.0f, true);
 
 	GetWorld()->GetTimerManager().SetTimer(ShootTimer, this, &APlayerCharacter::SpawnAndFireProjectile, FireRate, true);
 }
@@ -206,6 +211,22 @@ float APlayerCharacter::GetGunDamage()
 void APlayerCharacter::SetGunDamage(float DamageToIncreaseBy)
 {
 	GunDamage *= DamageToIncreaseBy;
+}
+
+void APlayerCharacter::UpdateTimeRemaining()
+{
+	TimeRemaining--;
+
+	if (TimeRemaining <= 0)
+	{
+		//Call gamemode to win
+		GameModeRef->WinGame();
+	}
+}
+
+float APlayerCharacter::GetTimeRemaining()
+{
+	return TimeRemaining;
 }
 
 float APlayerCharacter::GetFireRate()
@@ -340,6 +361,11 @@ float APlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Damag
 	}
 
 	//Checking to see if the player died
+	if (Health <= 0)
+	{
+		GameModeRef->LoseGame();
+	}
+	
 
 	return DamageAmount;
 }

@@ -69,6 +69,8 @@ protected:
 
 	FTimerHandle ShootTimer; //Timer used so the AI will wait at after an attack
 
+	FTimerHandle TimeTillExtractTimer;
+
 	/** Called for movement input */
 	void Move(const FInputActionValue& Value);
 
@@ -115,6 +117,8 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "UI")
 	float FireRate = 3.0f;
+
+	float TimeRemaining;
 
 	UPROPERTY()
 	FString Information = "";
@@ -217,6 +221,11 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	FString DisplayInfo();
+
+	void UpdateTimeRemaining();
+
+	UFUNCTION(BlueprintCallable)
+	float GetTimeRemaining();
 
 	UFUNCTION()
 	//Function that will be called when damage is applied
