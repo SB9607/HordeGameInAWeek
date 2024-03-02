@@ -88,6 +88,8 @@ void APlayerCharacter::BeginPlay()
 	GetWorld()->GetTimerManager().SetTimer(TimeTillExtractTimer, this, &APlayerCharacter::UpdateTimeRemaining, 1.0f, true);
 
 	GetWorld()->GetTimerManager().SetTimer(ShootTimer, this, &APlayerCharacter::SpawnAndFireProjectile, FireRate, true);
+
+	GetWorld()->GetTimerManager().SetTimer(StaminaRegenTimer, this, &APlayerCharacter::RegenStamina, 1.0f, true);
 }
 
 // Called every frame
@@ -95,6 +97,10 @@ void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	if (Stamina <= 0)
+	{
+		GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
+	}
 }
 
 // Called to bind functionality to input
@@ -111,6 +117,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 		//Moving
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Move);
+		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Completed, this, &APlayerCharacter::StopMove);
 
 		//Looking
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Look);
@@ -263,13 +270,24 @@ void APlayerCharacter::UpdateStamina(float valueToChange, bool isMoving)
 		{
 			Stamina = 0.0f;
 		}
-		Stamina -= valueToChange;
+		else
+		{
+			Stamina -= valueToChange;
+		}
 	}
 	else
 	{
-		Stamina += valueToChange;
-	}
 
+		//set timer to tick down health
+		if (Stamina >= 100.0f)
+		{
+			Stamina = 100.0f;
+		}
+		else
+		{
+			Stamina += valueToChange;
+		}
+	}
 }
 
 void APlayerCharacter::Move(const FInputActionValue& Value)
@@ -292,7 +310,14 @@ void APlayerCharacter::Move(const FInputActionValue& Value)
 		// add movement 
 		AddMovementInput(ForwardDirection, MovementVector.Y);
 		AddMovementInput(RightDirection, MovementVector.X);
+
+		isPlayerMoving = true;
 	}
+}
+
+void APlayerCharacter::StopMove(const FInputActionValue& Value)
+{
+	isPlayerMoving = false;
 }
 
 void APlayerCharacter::Look(const FInputActionValue& Value)
@@ -314,7 +339,7 @@ void APlayerCharacter::Shoot(const FInputActionValue& Value)
 
 	if (isShooting)
 	{
-		SpawnAndFireProjectile();
+		//SpawnAndFireProjectile();
 	}
 
 }
@@ -370,18 +395,58 @@ float APlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Damag
 	return DamageAmount;
 }
 
+void APlayerCharacter::RegenStamina()
+{
+	UpdateStamina(10.0f, false);
+}
+
+void APlayerCharacter::ConsumeStamina()
+{
+	UpdateStamina(15.0f, isPlayerMoving);
+}
+
+float APlayerCharacter::GetStamina()
+{
+	return Stamina;
+}
+
 
 
 void APlayerCharacter::StartSprint(const FInputActionValue& Value)
 {
-	GetCharacterMovement()->MaxWalkSpeed = SprintSpeed;
-	isSprinting = true;
+	if (Stamina > 0)
+	{
+		GetCharacterMovement()->MaxWalkSpeed = SprintSpeed;
+
+		GetWorld()->GetTimerManager().ClearTimer(StaminaRegenTimer);
+		GetWorld()->GetTimerManager().SetTimer(StaminaDecreaseTimer, this, &APlayerCharacter::ConsumeStamina, 1.0f, true);
+	}
+	else
+	{
+		GetWorld()->GetTimerManager().ClearTimer(StaminaDecreaseTimer);
+
+		GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
+	}
+
 }
 
 void APlayerCharacter::StopSprint(const FInputActionValue& Value)
 {
 	GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
-	isSprinting = false;
+
+	GetWorld()->GetTimerManager().ClearTimer(StaminaDecreaseTimer);
+	GetWorld()->GetTimerManager().SetTimer(StaminaRegenTimer, this, &APlayerCharacter::RegenStamina, 1.0f, true);
+
+}
+
+void APlayerCharacter::CheckSprint(const FInputActionValue& Value)
+{
+	if (Stamina <= 0)
+	{
+		GetWorld()->GetTimerManager().ClearTimer(StaminaDecreaseTimer);
+
+		GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
+	}
 }
 
 void APlayerCharacter::StartAim(const FInputActionValue& Value)

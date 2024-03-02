@@ -71,8 +71,13 @@ protected:
 
 	FTimerHandle TimeTillExtractTimer;
 
+	FTimerHandle StaminaRegenTimer;
+
+	FTimerHandle StaminaDecreaseTimer;
+
 	/** Called for movement input */
 	void Move(const FInputActionValue& Value);
+	void StopMove(const FInputActionValue& Value);
 
 	/** Called for looking input */
 	void Look(const FInputActionValue& Value);
@@ -88,11 +93,13 @@ protected:
 	/** Called for sprinting */
 	void StartSprint(const FInputActionValue& Value);
 	void StopSprint(const FInputActionValue& Value);
+	void CheckSprint(const FInputActionValue& Value);
 
 	/** Called for Aiming */
 	void StartAim(const FInputActionValue& Value);
 	void StopAim(const FInputActionValue& Value);
 
+	bool isPlayerMoving = false;
 
 	UPROPERTY(EditAnywhere, Category = "UI")
 	float BaseHealth;
@@ -161,6 +168,13 @@ public:
 	void SetHealth(float health, bool isDamage);
 
 	void UpdateStamina(float valueToChange, bool isMoving);
+
+	void RegenStamina();
+
+	void ConsumeStamina();
+
+	UFUNCTION(BlueprintCallable)
+	float GetStamina();
 
 	UFUNCTION(BlueprintCallable)
 	float GetBaseHealth();
