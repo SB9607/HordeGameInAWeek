@@ -74,7 +74,7 @@ public:
 	FTimerHandle WinGameTimer; //Timer that will be set to the game duration. When the timer runs out the player will win the game
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	float GameDuration = 300.0f; //Duration of the game set to 5 minutes that will count down using the timer
+	float GameDuration = 120.0f; //Duration of the game set to 5 minutes that will count down using the timer
 
 	UPROPERTY()
 		bool bIsLevelling = false;
