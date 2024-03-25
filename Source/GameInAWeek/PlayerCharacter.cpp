@@ -265,8 +265,8 @@ void APlayerCharacter::UpdateStamina(float valueToChange, bool isMoving)
 {
 	if (isMoving)
 	{
-		//set timer to tick down health
-		if (Stamina <= 0.0f)
+
+		if (Stamina - valueToChange <= 0.0f)
 		{
 			Stamina = 0.0f;
 		}
@@ -277,9 +277,7 @@ void APlayerCharacter::UpdateStamina(float valueToChange, bool isMoving)
 	}
 	else
 	{
-
-		//set timer to tick down health
-		if (Stamina >= 100.0f)
+		if (Stamina + valueToChange >= 100.0f)
 		{
 			Stamina = 100.0f;
 		}
